@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                background-color: lightblue;
+                color: black;
+                font-size: 3rem;
+                display: flex;
+                flex-direction: column;
+            }
+            h1 {
+                width: 100%;
+                text-align: center;
+            }
+        </style>
+    </head>
+<body>
+    <h1>Weather</h1>
+    <div id="weatherContainer">
+       <div id="currentWeather"></div>
+       <div id="forecastWeather"></div>
+    </div>
+<script type="text/javascript">
+ function ClearOutput() {
+    document.getElementById("output").innerHTML = '';
+ }
+ window.onload = function(){
+    fetch('https://api.weatherapi.com/v1/forecast.json?key=419976d951bb43b4989215534222006&q=l0r1t0&days=3&aqi=no&alerts=no', {
+        method: 'POST', // or 'PUT'
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+ };
+</script>
+</body>
+</html>
