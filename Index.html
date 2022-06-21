@@ -5,7 +5,7 @@
             body {
                 background-color: lightblue;
                 color: black;
-                font-size: 3rem;
+                font-size: 1rem;
                 display: flex;
                 flex-direction: column;
             }
@@ -13,13 +13,40 @@
                 width: 100%;
                 text-align: center;
             }
+            #forecastWeatherTable {
+                min-width: 100%;
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            #forecastWeatherTable td, #forecastWeatherTable th{
+                border: 1px solid black;
+            }
         </style>
     </head>
 <body>
-    <h1>Weather</h1>
+    <h1>Weather (TODO: Inputs and styling)</h1>
     <div id="weatherContainer">
-       <div id="currentWeather"></div>
-       <div id="forecastWeather"></div>
+       <div id="currentWeather">
+        <h2>Current Weather</h2>
+            <div id="currentWeatherImage"></div>
+            <div id="currentWeatherTemperature"></div>
+       </div>
+       <div id="forecastWeather">
+            <h2>Forecast</h2>
+            <table id="forecastWeatherTable">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Condition</th>
+                        <th>Temperature</th>
+                        <th>Winds</th>
+                    </tr>
+                </thead>
+                <tbody id="forecastBody">
+
+                </tbody>
+            </table>
+       </div>
     </div>
 <script type="text/javascript">
  function ClearOutput() {
@@ -35,6 +62,16 @@
     .then(response => response.json())
     .then(data => {
         console.log('Success:', data);
+        var currentWeatherImage = document.getElementById("currentWeatherImage");
+        currentWeatherImage.innerHTML = `<img src='https:${data.current.condition.icon}'/> ${data.current.condition.text}`;
+        var currentWeatherTemperature = document.getElementById("currentWeatherTemperature");
+        currentWeatherTemperature.innerHTML = `Temperature: ${data.current.temp_c} ℃<br/> Feels Like: ${data.current.feelslike_c} ℃`;
+        data.forecast.forecastday.forEach(function(element, index) {
+            var forecastBody = document.getElementById("forecastBody");
+            var row = document.createElement("tr");
+            row.innerHTML = `<td>${element.date}</td><td><img src='https:${element.day.condition.icon}'/>${element.day.condition.text}</td><td>Avg: ${element.day.avgtemp_c} ℃<br/>Min: ${element.day.mintemp_c} ℃<br/>Max: ${element.day.maxtemp_c} ℃</td><td>Avg: ${element.day.avgvis_km} kph<br/>Max: ${element.day.maxwind_kph} kph</td>`;
+            forecastBody.appendChild(row);
+        });
     })
     .catch((error) => {
         console.error('Error:', error);
