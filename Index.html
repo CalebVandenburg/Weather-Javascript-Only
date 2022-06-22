@@ -21,11 +21,51 @@
             #forecastWeatherTable td, #forecastWeatherTable th{
                 border: 1px solid black;
             }
+            #inputs {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 2rem;
+            }
+            #locationData {
+                display: flex;
+                flex-direction: column;
+                
+            }
+            #currentWeatherImage, #forecastWeatherImage {
+                display: flex;
+                justify-content: left;
+                align-items: center;
+                font-size: 1.2rem;
+                font-weight: bold;
+            }
+            #locationDataContainer, #currentWeather, #forecastWeather {
+                padding: 2rem; 
+                border: 1px solid black;
+                border-radius: 1rem;
+                
+            }
+            #forecastWeather {
+                width: 65%;
+                min-width: 500px;
+            }
+            #weatherContainer {
+                display: flex;
+                justify-content: space-around;
+            }
         </style>
     </head>
 <body>
     <h1>Weather (TODO: Inputs and styling)</h1>
+    <div id="inputs">
+        <label for="locationInput">Postal/Zip: </label>&nbsp;<input type="text" id="locationInput" value="10001">&nbsp;
+        <label for="daysInput">Days To Forecast (1-10): </label>&nbsp;<input type="text" id="daysInput" value="3">
+        <input type="button" value="Refresh" onclick="GetWeather();">
+    </div>
     <div id="weatherContainer">
+        <div id="locationDataContainer">
+            <h2>Location Info</h2>
+            <div id='locationData'></div>
+        </div>
        <div id="currentWeather">
         <h2>Current Weather</h2>
             <div id="currentWeatherImage"></div>
@@ -49,11 +89,19 @@
        </div>
     </div>
 <script type="text/javascript">
+window.onload = function(){
+    GetWeather();
+ }
  function ClearOutput() {
     document.getElementById("output").innerHTML = '';
  }
- window.onload = function(){
-    fetch('https://api.weatherapi.com/v1/forecast.json?key=419976d951bb43b4989215534222006&q=l0r1t0&days=3&aqi=no&alerts=no', {
+ function GetWeather() {
+
+    var locationInput = document.getElementById("locationInput");
+    var daysInput = document.getElementById("daysInput");
+    var locationInputValue = locationInput.value;
+    var daysInputValue = daysInput.value;
+    fetch(`https://api.weatherapi.com/v1/forecast.json?key=419976d951bb43b4989215534222006&q=${locationInputValue}&days=${daysInputValue}&aqi=no&alerts=no`, {
         method: 'POST', // or 'PUT'
         headers: {
             'Content-Type': 'application/json',
@@ -62,14 +110,18 @@
     .then(response => response.json())
     .then(data => {
         console.log('Success:', data);
+
+        var locationData = document.getElementById("locationData");
+        locationData.innerHTML = `<span>Country: ${data.location.country}</span><span>Region: ${data.location.name}</span><span>Timezone: ${data.location.tz_id.replace("_", " " )}</span>`;
         var currentWeatherImage = document.getElementById("currentWeatherImage");
         currentWeatherImage.innerHTML = `<img src='https:${data.current.condition.icon}'/> ${data.current.condition.text}`;
         var currentWeatherTemperature = document.getElementById("currentWeatherTemperature");
         currentWeatherTemperature.innerHTML = `Temperature: ${data.current.temp_c} ℃<br/> Feels Like: ${data.current.feelslike_c} ℃`;
-        data.forecast.forecastday.forEach(function(element, index) {
             var forecastBody = document.getElementById("forecastBody");
+            forecastBody.innerHTML = "";//clear for new dataset
+        data.forecast.forecastday.forEach(function(element, index) {
             var row = document.createElement("tr");
-            row.innerHTML = `<td>${element.date}</td><td><img src='https:${element.day.condition.icon}'/>${element.day.condition.text}</td><td>Avg: ${element.day.avgtemp_c} ℃<br/>Min: ${element.day.mintemp_c} ℃<br/>Max: ${element.day.maxtemp_c} ℃</td><td>Avg: ${element.day.avgvis_km} kph<br/>Max: ${element.day.maxwind_kph} kph</td>`;
+            row.innerHTML = `<td>${element.date}</td><td><div id="forecastWeatherImage"><img src='https:${element.day.condition.icon}'/>${element.day.condition.text}</div></td><td>Avg: ${element.day.avgtemp_c} ℃<br/>Min: ${element.day.mintemp_c} ℃<br/>Max: ${element.day.maxtemp_c} ℃</td><td>Avg: ${element.day.avgvis_km} kph<br/>Max: ${element.day.maxwind_kph} kph</td>`;
             forecastBody.appendChild(row);
         });
     })
